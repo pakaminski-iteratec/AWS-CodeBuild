@@ -26,6 +26,8 @@ phases:
 
       - docker build -t namespace/aws-test .
 
-#      - docker tag aws-test:latest
+      - docker tag aws-test:latest 378582414855.dkr.ecr.us-east-1.amazonaws.com/aws_ecr_test:latest
+
+      - docker push 378582414855.dkr.ecr.us-east-1.amazonaws.com/aws_ecr_test:latest
 
       - echo Build completed on `date`
