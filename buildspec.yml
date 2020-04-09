@@ -17,9 +17,15 @@ phases:
       - echo Entered the build phase...
       - echo Build started on `date`
       - mvn install
+      - mvn package
     finally:
       - echo This always runs even if the install command fails
   post_build:
     commands:
       - echo Entered the post_build phase...
+
+      - docker build -t namespace/aws-test .
+
+      - docker tag aws-test:latest
+
       - echo Build completed on `date`
