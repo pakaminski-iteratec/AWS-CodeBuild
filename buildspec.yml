@@ -10,6 +10,12 @@ phases:
   pre_build:
     commands:
       - echo Entered the pre_build phase...
+
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - echo LOGGED
+
     finally:
       - echo This always runs even if the login command fails 
   build:
