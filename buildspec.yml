@@ -30,9 +30,7 @@ phases:
     commands:
       - echo Entered the post_build phase...
 
-      - docker version
-
-      - docker info
+      - aws ecr get-login-password --region eu-central-1
 
       - docker build -t aws-test .
 
@@ -41,3 +39,6 @@ phases:
       - docker push 378582414855.dkr.ecr.eu-central-1.amazonaws.com/aws_ecr_test:latest
 
       - echo Build completed on `date`
+
+
+#  aws ecr get-login-password --region eu-central-1 | docker login --username AWS  --password-stdin 378582414855.dkr.ecr.eu-central-1.amazonaws.com
