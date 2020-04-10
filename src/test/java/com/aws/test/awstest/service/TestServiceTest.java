@@ -22,7 +22,7 @@ class TestServiceTest {
         String result = testService.returnSomeRandomString(length);
 
         //then
-        Assertions.assertEquals(length, result.length());
+        Assertions.assertEquals(length, result.length() -2 );
     }
 
 }
