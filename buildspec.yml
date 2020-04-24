@@ -32,13 +32,19 @@ phases:
 
       - aws ecr get-login-password --region eu-central-1 | docker login --username AWS  --password-stdin 378582414855.dkr.ecr.eu-central-1.amazonaws.com
 
-      - docker build -t aws-test .
+      - docker build -t aws-test-pka .
 
-      - docker tag aws-test:latest 378582414855.dkr.ecr.eu-central-1.amazonaws.com/aws_ecr_test:latest
+      - docker tag aws-test-pka:latest 378582414855.dkr.ecr.eu-central-1.amazonaws.com/aws_ecr_test:latest
 
       - docker push 378582414855.dkr.ecr.eu-central-1.amazonaws.com/aws_ecr_test:latest
 
       - echo Build completed on `date`
+
+      - aws eks update-kubeconfig --name new-eks-cluster --region eu-central-1
+      
+      - kubectl config get-contexts
+      
+      - kubectl get svc
 
 
 #  aws ecr get-login-password --region eu-central-1 | docker login --username AWS  --password-stdin 378582414855.dkr.ecr.eu-central-1.amazonaws.com
