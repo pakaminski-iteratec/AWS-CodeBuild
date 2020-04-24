@@ -26,6 +26,9 @@ phases:
       - export APP_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
       - export APP_NAME=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.name -q -DforceStdout)
 
+      - echo "APP_VERSION" ${APP_VERSION}
+      - echo "APP_NAME "${APP_NAME}
+
     finally:
       - echo This always runs even if the login command fails 
   build:
@@ -37,35 +40,35 @@ phases:
       - echo This always runs even if the install command fails
   post_build:
     commands:
-      - echo Entered the post_build phase...
+      # - echo Entered the post_build phase...
 
-      - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS  --password-stdin ${ECR_URL}
+      # - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS  --password-stdin ${ECR_URL}
       
-      - aws ecr describe-repositories --repository-names ${CONTEXT}/${APP_NAME} || aws ecr create-repository --repository-name ${CONTEXT}/${APP_NAME}
+      # - aws ecr describe-repositories --repository-names ${CONTEXT}/${APP_NAME} || aws ecr create-repository --repository-name ${CONTEXT}/${APP_NAME}
 
-      - docker build -t aws-test .
+      # - docker build -t aws-test .
       
-      - docker tag ${APP_NAME}:latest ${ECR_URL}/${CONTEXT}/${APP_NAME}:latest
+      # - docker tag ${APP_NAME}:latest ${ECR_URL}/${CONTEXT}/${APP_NAME}:latest
 
-      - docker tag ${APP_NAME} ${ECR_URL}/${CONTEXT}/${APP_NAME}:${APP_VERSION}
+      # - docker tag ${APP_NAME} ${ECR_URL}/${CONTEXT}/${APP_NAME}:${APP_VERSION}
       
-      - docker push ${ECR_URL}/"$(APP_NAME)":latest
+      # - docker push ${ECR_URL}/"$(APP_NAME)":latest
 
-      - echo Starting EKS deployment
+      # - echo Starting EKS deployment
 
-      - aws sts get-caller-identity
+      # - aws sts get-caller-identity
 
-      - aws eks update-kubeconfig --name ${EKS_CLUSTER}  --region ${AWS_REGION}
+      # - aws eks update-kubeconfig --name ${EKS_CLUSTER}  --region ${AWS_REGION}
 
-      - kubectl config get-contexts
+      # - kubectl config get-contexts
 
-      - kubectl -n kube-system get deployment
+      # - kubectl -n kube-system get deployment
 
-      - kubectl get svc
+      # - kubectl get svc
 
-      - helm init
+      # - helm init
 
-      - cd helm && helm install --name ${APP_NAME} . --set image.repository=${ECR_URL}/${CONTEXT}/${APP_NAME}:latest --set image.tag=latest 
+      # - cd helm && helm install --name ${APP_NAME} . --set image.repository=${ECR_URL}/${CONTEXT}/${APP_NAME}:latest --set image.tag=latest 
 
-      - echo Build completed on `date`
+      # - echo Build completed on `date`
 
