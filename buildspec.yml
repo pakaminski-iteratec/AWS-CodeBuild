@@ -1,20 +1,30 @@
 version: 0.2
+
+env:
+  variables:
+    CONTEXT: "viper"
+    ECR_URL: "378582414855.dkr.ecr.eu-central-1.amazonaws.com"
+    EKS_CLUSTER: "viper-eks-cluster "
+    AWS_REGION: "eu-central-1 "
+
 phases:
   install:
     commands:
       - echo Entered the install phase...
-      - apt-get update -y
-      - apt-get install -y maven
+
+      - wget https://storage.googleapis.com/kubernetes-helm/helm-v2.14.0-linux-amd64.tar.gz -O helm.tar.gz; tar -xzf helm.tar.gz
+      - chmod +x ./linux-amd64/helm
+      - mv ./linux-amd64/helm /usr/local/bin/helm
+
+
     finally:
       - echo This always runs even if the update or install command fails 
   pre_build:
     commands:
       - echo Entered the pre_build phase...
-
-      - echo Logging in to Amazon ECR...
-      - aws --version
-      - $(aws ecr get-login --region eu-central-1 --no-include-email)
-      - echo LOGGED
+     
+      - export APP_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
+      - export APP_NAME=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.name -q -DforceStdout)
 
     finally:
       - echo This always runs even if the login command fails 
@@ -23,28 +33,39 @@ phases:
       - echo Entered the build phase...
       - echo Build started on `date`
       - mvn install
-      - mvn package
     finally:
       - echo This always runs even if the install command fails
   post_build:
     commands:
       - echo Entered the post_build phase...
 
-      - aws ecr get-login-password --region eu-central-1 | docker login --username AWS  --password-stdin 378582414855.dkr.ecr.eu-central-1.amazonaws.com
+      - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS  --password-stdin ${ECR_URL}
 
-      - docker build -t aws-test-pka .
+      - docker build -t aws-test .
 
-      - docker tag aws-test-pka:latest 378582414855.dkr.ecr.eu-central-1.amazonaws.com/aws_ecr_test:latest
+      - aws ecr describe-repositories --repository-names "" || aws ecr create-repository --repository-name "$(APP_NAME)"
+      
+      - docker tag ${APP_NAME}:latest ${ECR_URL}/${CONTEXT}/${APP_NAME}:latest
 
-      - docker push 378582414855.dkr.ecr.eu-central-1.amazonaws.com/aws_ecr_test:latest
+      - docker tag ${APP_NAME} ${ECR_URL}/${CONTEXT}/${APP_NAME}:${APP_VERSION}
+      
+      - docker push ${ECR_URL}/"$(APP_NAME)":latest
+
+      - echo Starting EKS deployment
+
+      - aws sts get-caller-identity
+
+      - aws eks update-kubeconfig --name ${EKS_CLUSTER}  --region ${AWS_REGION}
+
+      - kubectl config get-contexts
+
+      - kubectl -n kube-system get deployment
+
+      - kubectl get svc
+
+      - helm init
+
+      - cd helm && helm install --name ${APP_NAME} . --set image.repository=${ECR_URL}/${CONTEXT}/${APP_NAME}:latest --set image.tag=latest 
 
       - echo Build completed on `date`
 
-      - aws eks update-kubeconfig --name viper-eks-cluster --region eu-central-1
-      
-      - kubectl config get-contexts
-      
-      - kubectl get svc
-
-
-#  aws ecr get-login-password --region eu-central-1 | docker login --username AWS  --password-stdin 378582414855.dkr.ecr.eu-central-1.amazonaws.com
