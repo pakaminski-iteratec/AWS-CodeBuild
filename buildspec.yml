@@ -40,35 +40,35 @@ phases:
       - echo This always runs even if the install command fails
   post_build:
     commands:
-      # - echo Entered the post_build phase...
+      - echo Entered ECS phase...
 
-      # - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS  --password-stdin ${ECR_URL}
+      - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS  --password-stdin ${ECR_URL}
       
-      # - aws ecr describe-repositories --repository-names ${CONTEXT}/${APP_NAME} || aws ecr create-repository --repository-name ${CONTEXT}/${APP_NAME}
+      - aws ecr describe-repositories --repository-names ${CONTEXT}/${APP_NAME} || aws ecr create-repository --repository-name ${CONTEXT}/${APP_NAME}
 
-      # - docker build -t aws-test .
+      - docker build -t aws-test .
       
-      # - docker tag ${APP_NAME}:latest ${ECR_URL}/${CONTEXT}/${APP_NAME}:latest
+      - docker tag ${APP_NAME}:latest ${ECR_URL}/${CONTEXT}/${APP_NAME}:latest
 
-      # - docker tag ${APP_NAME} ${ECR_URL}/${CONTEXT}/${APP_NAME}:${APP_VERSION}
+      - docker tag ${APP_NAME} ${ECR_URL}/${CONTEXT}/${APP_NAME}:${APP_VERSION}
       
-      # - docker push ${ECR_URL}/"$(APP_NAME)":latest
+      - docker push ${ECR_URL}/${CONTEXT}/${APP_NAME}
 
-      # - echo Starting EKS deployment
+      - echo ECS phase completed.
 
-      # - aws sts get-caller-identity
+      - echo Entered EKS phase..
 
-      # - aws eks update-kubeconfig --name ${EKS_CLUSTER}  --region ${AWS_REGION}
+      - aws sts get-caller-identity
 
-      # - kubectl config get-contexts
+      - aws eks update-kubeconfig --name ${EKS_CLUSTER}  --region ${AWS_REGION}
 
-      # - kubectl -n kube-system get deployment
+      - kubectl -n kube-system get deployment
 
-      # - kubectl get svc
+      - kubectl get svc
 
-      # - helm init
+      - helm init
 
-      # - cd helm && helm install --name ${APP_NAME} . --set image.repository=${ECR_URL}/${CONTEXT}/${APP_NAME}:latest --set image.tag=latest 
+      - cd helm && helm install --name ${APP_NAME} . --set image.repository=${ECR_URL}/${CONTEXT}/${APP_NAME}:latest --set image.tag=latest 
 
-      # - echo Build completed on `date`
+      - echo Build completed on `date`
 
