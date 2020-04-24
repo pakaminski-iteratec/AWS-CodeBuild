@@ -40,10 +40,10 @@ phases:
       - echo Entered the post_build phase...
 
       - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS  --password-stdin ${ECR_URL}
+      
+      - aws ecr describe-repositories --repository-names ${CONTEXT}/${APP_NAME} || aws ecr create-repository --repository-name ${CONTEXT}/${APP_NAME}
 
       - docker build -t aws-test .
-
-      - aws ecr describe-repositories --repository-names "" || aws ecr create-repository --repository-name "$(APP_NAME)"
       
       - docker tag ${APP_NAME}:latest ${ECR_URL}/${CONTEXT}/${APP_NAME}:latest
 
