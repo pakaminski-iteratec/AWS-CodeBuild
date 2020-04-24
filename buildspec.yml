@@ -40,7 +40,7 @@ phases:
 
       - echo Build completed on `date`
 
-      - aws eks update-kubeconfig --name new-eks-cluster --region eu-central-1
+      - aws eks update-kubeconfig --name viper-eks-cluster --region eu-central-1
       
       - kubectl config get-contexts
       
